@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>묵찌빠게임</title>
+    <style>
+        .gamemode{
+            height: 70px;
+        }
+        .player-select,
+        .com-select{
+            width: 180px;
+            height: 154px;
+            background-image: url(./img/img.png);
+            background-repeat: no-repeat;
+            border: 1px solid;
+            background-size: 440px;
+            background-position-x: 25px;
+        }
+        .rock{
+            background-position-x: 25px;
+        }
+        .paper{
+            background-position-x: -265px;
+
+        }
+        .scissors{
+            background-position-x: -121px;
+        }
+        .game-wrap{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="gamemode">
+        <span>난이도 : </span>
+        <input type="radio" name="mode" id="easy">
+        <label for="easy">쉬움</label>
+        <input type="radio" name="mode" id="hard">
+        <label for="hard">어려움</label>
+        <input type="radio" name="mode" id="exthard">
+        <label for="exthard">매우어려움</label>
+        <button class="start-btn">시작하기</button>
+    </div>
+    <div class="game-wrap">
+        <div class="player-select"></div>
+        <div class="com-select"></div>
+    </div>
+    <div class="player-money">플레이어 보유금 : </div>
+    <div class="com-money">컴퓨터 보유금 :</div>
+    <div class="com-bet">이번 판의 배팅금액 :</div>
+    <h1 class="result">결과</h1>
+    <button class="player-btn">가위</button>
+    <button class="player-btn">보</button>
+    <button class="player-btn">바위</button>
+    <button class="choice-btn">제출하기!</button>
+
+</body>
+<script>
+    //전역변수    
+    let gameArr = ['scissors','paper','rock'];
+    let playerBtns = document.querySelectorAll('.player-btn');
+    let playerSelect = document.querySelector('.player-select');
+    let comSelect = document.querySelector('.com-select');
+    let playerMoney = document.querySelector('.player-money');
+    let comMoney = document.querySelector('.com-money');
+    let startBtn = document.querySelector('.start-btn');
+    let easy = document.getElementById('easy');
+    let hard = document.getElementById('hard');
+    let exthard = document.getElementById('exthard');
+    let choiceBtn = document.querySelector('.choice-btn');
+    let result = document.querySelector('.result');
+    let combetMoney = document.querySelector('.com-bet')
+    let playerhasMoney;
+    let comhasMoney;
+    let comNum;
+    let comBet;
+    let end = true;
+
+    
+        //시작버튼 누를때 함수
+        function start(){
+            if(easy.checked){
+                playerhasMoney = 100000;
+                comhasMoney =20000;
+                showmetheMoney();
+
+            }else if(hard.checked){
+                playerhasMoney = 50000;
+                comhasMoney =20000;
+                showmetheMoney();
+            }else{
+                playerhasMoney = 10000;
+                comhasMoney =20000;
+                showmetheMoney();
+            }
+            init();
+        }
+    function showmetheMoney(){
+        playerMoney.innerHTML ="플레이어 보유금 :"+ playerhasMoney +" 원";
+        comMoney.innerHTML ="컴퓨터 보유금 :"+ comhasMoney +" 원";
+    }
+
+
+    // 초기화 함수
+    function init(){
+
+        gameArr.forEach(function(item,index){
+            playerBtns[index].addEventListener('click',function(){
+
+                playerSelect.className = 'player-select '+item;
+            })
+        })
+    }
+
+    //게임 함수
+    function gameStart(player){
+        if(playerhasMoney>=3000){
+            if(end == true){
+                comBet = Math.floor(Math.random() * 3 + 1) * 1000
+                combetMoney.innerHTML =`이번 판의 배팅금액 : ${comBet}`
+                comNum=gameArr[Math.floor(Math.random() * gameArr.length)]
+                comSelect.className = 'com-select ' + comNum;
+            }
+            if(playerChoice == "scissors" && comNum == "paper" ||playerChoice == "paper" && comNum == "rock" ||
+            playerChoice == "rock" && comNum == "scissors" )
+            {
+                //이겼을때
+                result.innerHTML ="가위바위보를 이겼습니다. 묵,찌,빠 중 하나를 입력해 공격하세요"
+                choiceBtn.onclick =gameSecondwin;
+                return;
+    
+            }else if(playerChoice == "scissors" && comNum == "rock" ||playerChoice == "paper" && comNum == "scissors" ||
+            playerChoice == "rock" && comNum == "paper")
+            {
+                //졌을때
+                result.innerHTML ="가위바위보에 졌습니다. 묵,찌,빠 중 하나를 입력해 수비하세요"
+                choiceBtn.onclick =gameSecondlose;
+                return;       
+            }else if(playerChoice == "scissors" && comNum == "scissors" ||playerChoice == "paper" && comNum == "paper" ||
+            playerChoice == "rock" && comNum == "rock")
+            {
+                //비겼을때
+                result.innerHTML ="다시 묵,찌,빠 중 하나를 입력해주세요"
+                return;
+            }if(playerChoice==null){
+                result.innerHTML = '가위, 바위, 보 중 하나를 클릭하고 제출하기를 눌러 다음 게임을 진행하세요'
+            }
+            // return;
+        }else{
+            alert('파산하였습니다!');
+        }
+  
+    }
+    function gameSecondwin(){
+        comNum=gameArr[Math.floor(Math.random() * gameArr.length)]
+        comSelect.className = 'com-select ' + comNum;        
+        if(playerChoice === comNum){
+            result.innerHTML = `묵찌빠에 승리하였습니다 ${comBet * 2}원을 얻었습니다`
+            playerhasMoney += comBet *2
+            comhasMoney -= comBet *2
+            playerMoney.innerHTML ="플레이어 보유금 :"+ playerhasMoney +" 원";
+            comMoney.innerHTML ="컴퓨터 보유금 :"+ comhasMoney +" 원";
+            choiceBtn.onclick = gameStart
+            playerChoice = null;
+            end = true;
+            return;
+            
+        }else{
+            end = false;
+            choiceBtn.onclick = gameStart
+            result.innerHTML = "묵찌빠 공격이 실패했습니다! 제출하기를 다시 눌러주세요"
+            return;
+        }
+    }
+    function gameSecondlose(){
+        comNum=gameArr[Math.floor(Math.random() * gameArr.length)]
+        comSelect.className = 'com-select ' + comNum;
+        if(playerChoice === comNum){
+            result.innerHTML = `묵찌빠에 패배하였습니다 ${comBet * 2}원을 잃었습니다`
+            playerhasMoney -= comBet *2
+            comhasMoney+= comBet *2
+            playerMoney.innerHTML ="플레이어 보유금 :"+ playerhasMoney +" 원";
+            comMoney.innerHTML ="컴퓨터 보유금 :"+ comhasMoney +" 원";
+            choiceBtn.onclick = gameStart
+            end = true;
+            playerChoice = null;
+            return;
+
+        }else{
+            end=false;
+            choiceBtn.onclick = gameStart
+            result.innerHTML = "묵찌빠 수비에 성공했습니다! 제출하기를 다시 눌러주세요"
+            return;
+        } 
+    }
+
+    let playerChoice = null;
+    
+    playerBtns[0].addEventListener('click',function(){
+        playerChoice = 'scissors'
+        console.log(playerChoice);
+    })
+    playerBtns[1].addEventListener('click',function(){
+        playerChoice = 'paper'
+    })
+    playerBtns[2].addEventListener('click',function(){
+        playerChoice = 'rock'
+    })
+    // 스타트버튼 이벤트
+    startBtn.addEventListener('click',start)
+    console.log(playerBtns[0])
+    choiceBtn.onclick = gameStart
+</script>
+</html>
